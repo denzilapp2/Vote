@@ -1819,6 +1819,7 @@ if (!PLV) start(false);
   <div class="acgs">
     <input id="acgs" placeholder="Google Drive: Apps Script Web App URL (https://script.google.com/macros/s/.../exec)">
     <button type="button" class="p" id="acgsb">💾 සුරකින්න</button>
+    <button type="button" id="acgst">🔍 පරීක්ෂා කරන්න</button>
   </div>
   <p class="plmu" id="acgsm"></p>
   <div id="acbody" class="plmu">⏳</div>
@@ -2041,6 +2042,17 @@ if (!PLV) start(false);
     pushGs(v).then(function() {
       $("acgsm").textContent = v ? "✔ Google Drive සක්‍රියයි — සිසුන්ගේ ගොනු Drive වෙත සුරැකේ." : "Drive අක්‍රියයි — ගොනු Firebase හි සුරැකේ (3 MB සීමාව).";
     }).catch(plFail);
+  };
+
+  $("acgst").onclick = function() {
+    var v = $("acgs").value.trim(), m = $("acgsm");
+    if (!v) { m.textContent = "මුලින් URL එක ඇතුළත් කරන්න."; return; }
+    m.textContent = "⏳ පරීක්ෂා කරමින්...";
+    fetch(v).then(function(r) { return r.json(); }).then(function(r) {
+      m.textContent = r.ok ? "✅ Drive සූදානම්! (" + r.msg + ")" : "⚠ " + (r.error || "දෝෂයකි");
+    }).catch(function() {
+      m.textContent = "⚠ සම්බන්ධ විය නොහැක: URL වැරදි විය හැක, Access 'Anyone' නොවිය හැක, නැතහොත් අලුත් .gs කේතය New version ලෙස Deploy කර නැත.";
+    });
   };
 
   var tools = document.querySelector(".tools");
