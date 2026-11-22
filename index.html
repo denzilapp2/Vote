@@ -1716,16 +1716,16 @@ function plVoter() {
     var h = '<h2 style="margin:0 0 6px">' + esc(M.title) + '</h2><p class="plmu">ඔබේ නම තෝරන්න 👇</p>';
     keys.forEach(function(k) {
       var x = mem[k], v = vd[k] !== undefined && vd[k] !== null;
-      h += '<button type="button" class="plbtn" data-k="' + k + '" style="background:var(--pr)"' + (v ? " disabled" : "") + '>' + (v ? "✅ " : "") + esc(x.n) + '</button>';
+      h += '<button type="button" class="plbtn" data-k="' + k + '" style="background:var(--pr)"' + '>' + (v ? "✅ " : "") + esc(x.n) + '</button>';
     });
     B.innerHTML = h;
   }
   function step2() {
     var x = mem[me], n = M.groups.length;
     var h = '<h2 style="margin:0 0 4px">👋 ' + esc(x.n) + '</h2>' + (x.p ? '<p style="margin:0 0 4px;font-weight:700">ඔබේ පෙට් නම: ' + esc(x.p) + '</p>' : '') +
-            '<p class="plmu">හොඳම කණ්ඩායමට ඡන්දය දෙන්න (ඔබේ කණ්ඩායමට ඡන්දය දිය නොහැක)</p>';
+            '<p class="plmu">' + (vd[me] !== undefined && vd[me] !== null ? "✅ ඔබ දැනටමත් ඡන්දය දී ඇත. ගොනු උඩුගත කළ හැක." : "හොඳම කණ්ඩායමට ඡන්දය දෙන්න (ඔබේ කණ්ඩායමට ඡන්දය දිය නොහැක)") + '</p>';
     M.groups.forEach(function(g, i) {
-      h += '<button type="button" class="plbtn" data-g="' + i + '" style="background:' + plcol(i, n) + '"' + (i === x.g ? " disabled" : "") + '>' + esc(g) + (i === x.g ? " (ඔබේ කණ්ඩායම)" : "") + '</button>';
+      h += '<button type="button" class="plbtn" data-g="' + i + '" style="background:' + plcol(i, n) + '"' + (i === x.g || (vd[me] !== undefined && vd[me] !== null) ? " disabled" : "") + '>' + esc(g) + (i === x.g ? " (ඔබේ කණ්ඩායම)" : "") + '</button>';
     });
     h += '<button type="button" data-back="1" style="margin-top:6px">← ආපසු</button>';
     B.innerHTML = h;
@@ -1733,10 +1733,10 @@ function plVoter() {
   function vote(g) {
     big("⏳");
     plApi(db, "/polls/" + id + "/voters/" + me).then(function(x) {
-      if (x !== null) { big("✅ මෙම සිසුවා දැනටමත් ඡන්දය දී ඇත."); return; }
+      if (x !== null) { vd[me] = x; big("✅ මෙම සිසුවා දැනටමත් ඡන්දය දී ඇත."); B.insertAdjacentHTML("beforeend", '<button type="button" data-back="1" style="margin-top:10px">📂 ගොනු උඩුගත කිරීමට / ආපසු</button>'); return; }
       return plApi(db, "/polls/" + id + "/voters/" + me, "PUT", g)
         .then(function() { return plApi(db, "/polls/" + id + "/votes/" + g, "PUT", { ".sv": { "increment": 1 } }); })
-        .then(function() { big("🎉 ඔබේ ඡන්දය සටහන් විය. ස්තූතියි!"); });
+        .then(function() { vd[me] = g; big("🎉 ඔබේ ඡන්දය සටහන් විය. ස්තූතියි!"); B.insertAdjacentHTML("beforeend", '<button type="button" data-back="1" style="margin-top:10px">📂 ගොනු උඩුගත කිරීමට / ආපසු</button>'); });
     }).catch(function() { big("⚠ දෝෂයකි. නැවත උත්සාහ කරන්න."); });
   }
   B.onclick = function(e) {
