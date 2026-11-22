@@ -6,7 +6,7 @@
 <title>🎴 කාඩ් ඇදීමෙන් කණ්ඩායම් තෝරන්න & කැරකෙන රෝදය</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;600;700;800&family=Gemunu+Libre:wght@400;600;800&family=Baloo+2:wght@500;700;800&family=Orbitron:wght@600;800&family=Pacifico&display=swap" rel="stylesheet">
 <style>
 :root {
   --b1: #ffecd2;
@@ -670,6 +670,27 @@ button.chip-btn {
 .plbig{font-size:1.4rem;font-weight:800;text-align:center;padding:22px 6px}
 .plvote .wrap,.plvote #bg,.plvote #cf,.plvote #ov,.plvote #wheelModal{display:none!important}
 @media print{#plm,#plv{display:none!important}}
+<style>
+/* ===== Fonts: ලස්සන විවිධ අකුරු ===== */
+:root{
+  --fd:"Gemunu Libre","Noto Sans Sinhala",sans-serif;
+  --fb:"Baloo 2","Noto Sans Sinhala",sans-serif;
+  --fo:"Orbitron","Noto Sans Sinhala",sans-serif;
+  --fp:"Pacifico","Noto Sans Sinhala",cursive;
+}
+h1{font-family:var(--fd);font-weight:800;letter-spacing:.4px}
+.wheel-top h2,.plb>div>b,.acb b,.msg{font-family:var(--fd)}
+.msg{font-size:1.2rem}
+button,.plbtn{font-family:var(--fb)}
+.ch{font-family:var(--fb)}
+.gh>span:first-child{font-family:var(--fo);font-size:.92rem;letter-spacing:.5px}
+.ba span{font-family:var(--fo);font-weight:700}
+.fa{font-family:var(--fb)}
+#ov .t{font-family:var(--fb)}
+#ov .g{font-family:var(--fo);font-size:clamp(2.2rem,9vw,5.5rem)}
+.acg h3,.plrt span:first-child{font-family:var(--fo);font-size:.92rem}
+.acit .i b{font-family:var(--fb)}
+.plvv h2{font-family:var(--fd);font-size:1.5rem}
 </style>
 </head>
 <body>
@@ -1103,7 +1124,7 @@ function closeOverlay() {
   if (rec) rec.stop();
   $("ov").className = "";
   var nb = document.querySelector("#ov .nm"); if (nb) nb.style.display = "";
-  $("og").style.fontSize = "";
+  $("og").style.fontSize = ""; $("og").style.fontFamily = "";
 }
 
 function reopen(i) {
@@ -1133,7 +1154,7 @@ function saveName() {
     document.querySelector("#ov .nm").style.display = "none";
     $("ot").textContent = "🎉 " + v + " — ඔබේ පෙට් නම";
     $("og").textContent = PN[cur];
-    $("og").style.fontSize = "clamp(1.8rem, 8vw, 4rem)";
+    $("og").style.fontSize = "clamp(1.8rem, 8vw, 4rem)"; $("og").style.fontFamily = "var(--fp)";
     playWin();
     burst();
     setTimeout(closeOverlay, 3200);
@@ -1307,7 +1328,7 @@ function drawWheel() {
     ctx.arc(cx, cy, R, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 18px 'Noto Sans Sinhala', sans-serif";
+    ctx.font = "bold 18px 'Baloo 2','Noto Sans Sinhala', sans-serif";
     ctx.textAlign = "center";
     ctx.fillText("තේරීමට කිසිවෙක් ඉතිරිව නැත!", cx, cy);
     return;
@@ -1347,7 +1368,7 @@ function drawWheel() {
     ctx.shadowBlur = 4;
 
     var fontSize = count > 45 ? 10 : (count > 25 ? 12 : (count > 12 ? 15 : 18));
-    ctx.font = "bold " + fontSize + "px 'Noto Sans Sinhala', sans-serif";
+    ctx.font = "bold " + fontSize + "px 'Baloo 2','Noto Sans Sinhala', sans-serif";
     var text = wheelItems[i].label;
     if (text.length > 14) text = text.slice(0, 13) + "…";
     ctx.fillText(text, R - 18, fontSize / 3);
@@ -1607,8 +1628,8 @@ loop();
 /* =========================================================
    PET NAMES
    ========================================================= */
-var PET_A = ["දඟ","සිඟිත්ති","අහිංසක","ඉක්මන්","හිනාමුසු","නිර්භීත","බුද්ධිමත්","සන්සුන්","ප්‍රබල","දීප්තිමත්","රන්වන්","තරු","විහිළුකාර","උද්‍යෝගිමත්","මිහිරි","වීර"];
-var PET_B = ["🐯 කොටියා","🦁 සිංහයා","🐘 අලි පැටියා","🦚 මොනරා","🐰 හාවා","🐿️ ලේනා","🐦 කුරුල්ලා","🐬 ඩොල්ෆින්","🐧 පෙන්ගුවින්","🐼 පැන්ඩා","🦉 බකමූණා","🦜 ගිරවා","🐢 කැස්බෑවා","🦋 සමනලයා","🦊 නරියා","🐻 වලසා"];
+var PET_A = ["Brave","Clever","Swift","Happy","Mighty","Sunny","Lucky","Jolly","Calm","Bright","Golden","Star","Funny","Zippy","Sweet","Heroic"];
+var PET_B = ["🐯 Tiger","🦁 Lion","🐘 Elephant","🦚 Peacock","🐰 Rabbit","🐿️ Squirrel","🐦 Bird","🐬 Dolphin","🐧 Penguin","🐼 Panda","🦉 Owl","🦜 Parrot","🐢 Turtle","🦋 Butterfly","🦊 Fox","🐻 Bear"];
 function newPet() {
   if (!petPool.length) {
     for (var a = 0; a < PET_A.length; a++) for (var b = 0; b < PET_B.length; b++) petPool.push(PET_A[a] + " " + PET_B[b]);
@@ -1875,23 +1896,25 @@ if (!PLV) start(false);
       var base = { g: U.m.g, n: U.m.n, k: U.k, t: t, fn: f.name, ty: f.type || "", sz: f.size, ts: Date.now() };
       readURL(f, function(url) {
         function save(full, th) {
-          if (U.gs) {
-            var name = isImg && !/\.jpe?g$/i.test(f.name) ? f.name.replace(/\.[^.]+$/, "") + ".jpg" : f.name;
-            fetch(U.gs, { method: "POST", body: JSON.stringify({
-              name: name, type: isImg ? "image/jpeg" : f.type, data: full.split(",")[1],
-              folder: gn(U.m.g)
-            }) }).then(function(r) { return r.json(); }).then(function(r) {
-              if (!r.ok) throw new Error(r.error || "Drive දෝෂයකි");
-              base.th = th || ""; base.u = r.url; base.did = r.id;
-              return plApi(U.db, "/polls/" + U.id + "/acts", "POST", base);
-            }).then(res).catch(function(e) { rej(new Error(f.name + " : " + e.message)); });
-          } else {
+          var drv = false;
+          function fb() {
             if (full.length > 4.4 * 1024 * 1024) return rej(new Error(f.name + " : විශාල වැඩියි"));
             plApi(U.db, "/polls/" + U.id + "/files", "POST", { d: full }).then(function(r) {
               base.th = th || ""; base.f = r.name;
               return plApi(U.db, "/polls/" + U.id + "/acts", "POST", base);
             }).then(res).catch(rej);
           }
+          if (U.gs) {
+            var name = isImg && !/\.jpe?g$/i.test(f.name) ? f.name.replace(/\.[^.]+$/, "") + ".jpg" : f.name;
+            fetch(U.gs, { method: "POST", body: JSON.stringify({
+              name: name, type: isImg ? "image/jpeg" : f.type, data: full.split(",")[1],
+              folder: gn(U.m.g)
+            }) }).then(function(r) { return r.json(); }).then(function(r) {
+              if (!r.ok) throw new Error(r.error || "Drive දෝෂයකි"); drv = true;
+              base.th = th || ""; base.u = r.url; base.did = r.id;
+              return plApi(U.db, "/polls/" + U.id + "/acts", "POST", base);
+            }).then(res).catch(function(e) { if (!drv) { showToast("⚠️ Drive වෙත නොහැකි විය — Firebase වෙත සුරකිනවා"); fb(); } else rej(new Error(f.name + " : " + e.message)); });
+          } else { fb(); }
         }
         if (isImg) shrink(url, U.gs ? 1600 : 1000, 0.75, function(full) {
           shrink(url, 240, 0.6, function(th) { save(full, th); }, rej);
