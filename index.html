@@ -74,9 +74,10 @@
       pan.style.display = "block";
       build();
     } else {
-      pan.style.display = "none";
-      if (saved.l === "none" && saved.s === "none") { set.style.display = ""; }
-      else { set.style.display = saved.s; live.style.display = saved.l; }
+      if (pan.style.display === "block") {
+        pan.style.display = "none";
+        set.style.display = saved.s; live.style.display = saved.l;
+      }
     }
   }
   $("gqt1").onclick = function() { show(1); };
