@@ -820,7 +820,7 @@ button,.plbtn{font-family:var(--fb)}
     <input id="plpu">
     <label for="plti">මාතෘකාව</label>
     <input id="plti" value="හොඳම කණ්ඩායම කුමක්ද?">
-    <p class="plmu">කාඩ්පත් ඇදපු සිසුන් ඡන්දදායකයන් ලෙස යවයි. සිසුවා තමන්ගේ නම තෝරන විට ඔහුගේ කණ්ඩායමට ඡන්දය දීම අවහිර වේ. එක් සිසුවෙකුට එක් ඡන්දයක් පමණයි.</p>
+    <p class="plmu">කාඩ්පත් ඇදපු සිසුන් ඡන්දදායකයන් ලෙස යවයි. සිසුවා තමන්ගේ නම තෝරන විට ඔහුගේ කණ්ඩායමට ඡන්දය දීම අවහිර වේ. එක් සිසුවෙකුට එක් ඡන්දයක් පමණයි. ඡන්දය දීමට පෙර සිසුවාගේ කණ්ඩායම ක්‍රියාකාරකමක් උඩුගත කර තිබිය යුතු අතර, ඡන්දය දිය හැක්කේ ක්‍රියාකාරකම් උඩුගත කළ කණ්ඩායම් වලට පමණි.</p>
     <button class="p" id="plstart" type="button">🚀 ඡන්ද විමසුම ආරම්භ කරන්න</button>
     <div id="plerr" style="color:#e03131;font-weight:700;margin-top:8px"></div>
   </div>
@@ -1730,7 +1730,7 @@ $("plcp").onclick = function() {
 function plVoter() {
   document.body.classList.add("plvote");
   $("plv").classList.add("on");
-  var B = $("plvbody"), db = PLV.db, id = PLV.id, me = null, M = null, mem = {}, vd = {}, keys = [];
+  var B = $("plvbody"), db = PLV.db, id = PLV.id, me = null, M = null, mem = {}, vd = {}, keys = [], acts = {};
   function big(t) { B.innerHTML = '<div class="plbig">' + t + '</div>'; }
   big("⏳");
   function step1() {
@@ -1742,15 +1742,37 @@ function plVoter() {
     B.innerHTML = h;
   }
   function step2() {
-    var x = mem[me], n = M.groups.length;
-    var h = '<h2 style="margin:0 0 4px">👋 ' + esc(x.n) + '</h2>' + (x.p ? '<p style="margin:0 0 4px;font-weight:700">ඔබේ පෙට් නම: ' + esc(x.p) + '</p>' : '') +
-            '<p class="plmu">' + (vd[me] !== undefined && vd[me] !== null ? "✅ ඔබ දැනටමත් ඡන්දය දී ඇත. ගොනු උඩුගත කළ හැක." : "හොඳම කණ්ඩායමට ඡන්දය දෙන්න (ඔබේ කණ්ඩායමට ඡන්දය දිය නොහැක)") + '</p>';
+    plApi(db, "/polls/" + id + "/acts").then(function(a) { acts = a || {}; draw2(); })
+      .catch(function() { draw2(); });
+  }
+  function draw2() {
+    var x = mem[me], n = M.groups.length, by = {}, voted = vd[me] !== undefined && vd[me] !== null;
+    Object.keys(acts).forEach(function(k) { var a = acts[k]; (by[a.g] = by[a.g] || []).push(a); });
+    var mine = (by[x.g] || []).length > 0;
+    var h = '<h2 style="margin:0 0 4px">👋 ' + esc(x.n) + '</h2>' +
+      (x.p ? '<p style="margin:0 0 4px;font-weight:700">ඔබේ පෙට් නම: ' + esc(x.p) + '</p>' : '') +
+      '<p style="margin:0 0 6px;font-weight:700">ඔබේ කණ්ඩායම: ' + esc(M.groups[x.g]) + '</p>' +
+      '<p class="plmu">' + (mine ? "✅ ඔබේ කණ්ඩායම ක්‍රියාකාරකමක් උඩුගත කර ඇත." : "⚠️ මුලින් ඔබේ කණ්ඩායමේ ක්‍රියාකාරකමක් උඩුගත කරන්න. ඉන්පසු ඡන්දය දිය හැක.") + '</p>' +
+      '<h3 class="plvt" style="margin:14px 0 4px">🗳️ ඡන්දය දෙන්න</h3>' +
+      '<p class="plmu">' + (voted ? "✅ ඔබ දැනටමත් ඡන්දය දී ඇත." : "ක්‍රියාකාරකම් උඩුගත කළ අනෙක් කණ්ඩායම් වලට පමණක් ඡන්දය දිය හැක.") + '</p>';
     M.groups.forEach(function(g, i) {
-      h += '<button type="button" class="plbtn" data-g="' + i + '" style="background:' + plcol(i, n) + '"' + (i === x.g || (vd[me] !== undefined && vd[me] !== null) ? " disabled" : "") + '>' + esc(g) + (i === x.g ? " (ඔබේ කණ්ඩායම)" : "") + '</button>';
+      var L = by[i] || [], off = i === x.g || !L.length || !mine || voted;
+      h += '<div style="margin:10px 0"><button type="button" class="plbtn" data-g="' + i + '" style="background:' + plcol(i, n) + '"' + (off ? " disabled" : "") + '>' +
+        esc(g) + ' · ' + (i === x.g ? "(ඔබේ කණ්ඩායම)" : L.length ? "ක්‍රියාකාරකම් " + L.length : "තවම උඩුගත කර නැත") + '</button>';
+      if (L.length && i !== x.g) {
+        h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">' + L.slice(0, 6).map(function(a) {
+          return '<div style="width:92px;font-size:.7rem">' + (a.th
+            ? '<img src="' + a.th + '" alt="" style="width:92px;height:70px;object-fit:cover;border-radius:8px;display:block">'
+            : '<div style="width:92px;height:70px;border-radius:8px;background:rgba(128,128,128,.2);display:flex;align-items:center;justify-content:center;font-size:1.6rem">' + (a.fn ? "📎" : "💬") + '</div>') +
+            '<div style="word-break:break-word">' + esc(String(a.fn || a.t || "").slice(0, 40)) + '</div></div>';
+        }).join("") + '</div>';
+      }
+      h += '</div>';
     });
     h += '<button type="button" data-back="1" style="margin-top:6px">← ආපසු</button>';
     B.innerHTML = h;
   }
+  document.addEventListener("acts-changed", function() { if (me && M) step2(); });
   function vote(g) {
     big("⏳");
     plApi(db, "/polls/" + id + "/voters/" + me).then(function(x) {
@@ -1930,7 +1952,7 @@ if (!PLV) start(false);
     if (!fs.length && !t) { MS.textContent = "ගොනුවක් හෝ විස්තරයක් ඇතුළත් කරන්න."; return; }
     $("acuS").disabled = true;
     function done() {
-      MS.textContent = "🎉 සාර්ථකව උඩුගත විය!";
+      MS.textContent = "🎉 සාර්ථකව උඩුගත විය!"; document.dispatchEvent(new Event("acts-changed"));
       F.value = ""; $("acuL").innerHTML = ""; $("acuC").value = ""; $("acuS").disabled = false;
     }
     function fail(e) { MS.textContent = "⚠ " + e.message; $("acuS").disabled = false; }
@@ -1971,7 +1993,7 @@ if (!PLV) start(false);
           MS.textContent = "";
         }).catch(function() { MS.textContent = "⚠ සම්බන්ධ විය නොහැක."; });
       };
-      body.insertBefore(b, body.querySelector("[data-back]"));
+      body.insertBefore(b, body.querySelector(".plvt,[data-back]"));
     }).observe(body, { childList: true });
   }
 
