@@ -1,15 +1,13 @@
-<!-- ===== කණ්ඩායම් QR tab (ඡන්ද modal එකට අලුත් tab එකක්) =====
-     අවසාන </body> ටැගයට හරියටම පෙර, පවතින අන්තිම </script> ට පසුව paste කරන්න. -->
-<style>
+/* group-qr-addon.js — index.html එකේ </body> ට පෙර: <script src="group-qr-addon.js"></script> */
+(function(){var st=document.createElement('style');st.textContent=`
 .gqtabs{display:flex;gap:8px;margin:12px 0 4px;flex-wrap:wrap}
 .gqtabs button.on{background:linear-gradient(135deg,#6366f1,#ec4899);color:#fff;border:none}
 #gqp{display:none;text-align:center}
 #gqp select{max-width:420px;margin:8px auto;display:block}
 #gqqr{background:#fff;padding:12px;border-radius:14px;display:inline-block;line-height:0;margin-top:10px}
 #gqnm{font-family:var(--fd);font-size:1.5rem;font-weight:800;margin-top:10px}
-</style>
+`;document.head.appendChild(st);})();
 
-<script>
 (function() {
   var qp = new URLSearchParams(location.search);
 
@@ -138,4 +136,3 @@
   // modal එක වසා/විවෘත කරද්දී tab 1 වෙත ආපසු
   $("plx").addEventListener("click", function() { show(1); });
 })();
-</script>
