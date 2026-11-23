@@ -362,6 +362,7 @@ button.chip-btn { padding: 8px 12px; font-size: 0.88rem; border-radius: 999px; }
           <button type="button" id="plrs">🗑️ ප්‍රතිඵල මකන්න</button>
           <button type="button" id="plnw">✨ නව විමසුමක්</button>
         </div>
+        <label style="display:flex;align-items:center;gap:8px;margin-top:10px;cursor:pointer;color:var(--tx)"><input type="checkbox" id="plfree" style="width:auto"> ක්‍රියාකාරකම් උඩුගත කර නැතත් සියලුම කණ්ඩායම් වලට ඡන්දය දීමට ඉඩ දෙන්න</label>
         <div id="plmsg" style="margin-top:8px;font-weight:700;color:#e03131"></div>
       </div>
     </div>
@@ -1051,10 +1052,12 @@ function plPoll() {
       var w = t ? Math.round(vs[i] * 100 / t) : 0, top = mxv > 0 && vs[i] === mxv;
       return '<div class="plr' + (top ? " pltop" : "") + '"><div class="plrt"><span>' + (top ? "🏆 " : "") + esc(nm) + '</span><span>' + vs[i] + " (" + w + '%)</span></div><div class="plrb"><i style="width:' + w + "%;background:" + plcol(i, n) + '"></i></div></div>';
     }).join("");
+    $("plfree").checked = !!d.meta.free;
     $("pltg").textContent = d.meta.open ? "🔒 ඡන්දය වසන්න" : "🔓 ඡන්දය විවෘත කරන්න";
     $("plmsg").textContent = d.meta.open ? "" : "🔒 ඡන්දය දැන් වසා ඇත";
   }).catch(plFail);
 }
+$("plfree").onchange = function() { plApi(PL.db, "/polls/" + PL.id + "/meta", "PATCH", { free: $("plfree").checked }).then(plPoll).catch(plFail); };
 $("pltg").onclick = function() { plApi(PL.db, "/polls/" + PL.id + "/meta", "PATCH", { open: !PL.meta.open }).then(plPoll).catch(plFail); };
 $("plup").onclick = function() { plApi(PL.db, "/polls/" + PL.id + "/members", "PUT", plMembers()).then(function() { showToast("👥 සිසුන් යාවත්කාලීන කළා ✔"); plPoll(); }).catch(plFail); };
 $("plrs").onclick = function() {
@@ -1085,7 +1088,9 @@ function plVoter() {
     B.innerHTML = h;
   }
   function step2() {
-    plApi(db, "/polls/" + id + "/acts").then(function(a) { acts = a || {}; draw2(); })
+    plApi(db, "/polls/" + id + "/meta/free").then(function(f) { M.free = !!f; }).catch(function() {})
+      .then(function() { return plApi(db, "/polls/" + id + "/acts"); })
+      .then(function(a) { acts = a || {}; draw2(); })
       .catch(function() { draw2(); });
   }
   function draw2() {
@@ -1095,11 +1100,11 @@ function plVoter() {
     var h = '<h2 style="margin:0 0 4px">👋 ' + esc(x.n) + '</h2>' +
       (x.p ? '<p style="margin:0 0 4px;font-weight:700">ඔබේ පෙට් නම: ' + esc(x.p) + '</p>' : '') +
       '<p style="margin:0 0 6px;font-weight:700">ඔබේ කණ්ඩායම: ' + esc(M.groups[x.g]) + '</p>' +
-      '<p class="plmu">' + (mine ? "✅ ඔබේ කණ්ඩායම ක්‍රියාකාරකමක් උඩුගත කර ඇත." : "⚠️ මුලින් ඔබේ කණ්ඩායමේ ක්‍රියාකාරකමක් උඩුගත කරන්න. ඉන්පසු ඡන්දය දිය හැක.") + '</p>' +
+      '<p class="plmu">' + (M.free ? "✅ ඕනෑම අනෙක් කණ්ඩායමකට ඡන්දය දිය හැක." : mine ? "✅ ඔබේ කණ්ඩායම ක්‍රියාකාරකමක් උඩුගත කර ඇත." : "⚠️ මුලින් ඔබේ කණ්ඩායමේ ක්‍රියාකාරකමක් උඩුගත කරන්න. ඉන්පසු ඡන්දය දිය හැක.") + '</p>' +
       '<h3 class="plvt" style="margin:14px 0 4px">🗳️ ඡන්දය දෙන්න</h3>' +
       '<p class="plmu">' + (voted ? "✅ ඔබ දැනටමත් ඡන්දය දී ඇත." : "ක්‍රියාකාරකම් උඩුගත කළ අනෙක් කණ්ඩායම් වලට පමණක් ඡන්දය දිය හැක.") + '</p>';
     M.groups.forEach(function(g, i) {
-      var L = by[i] || [], off = i === x.g || !L.length || !mine || voted;
+      var L = by[i] || [], off = i === x.g || voted || (!M.free && (!L.length || !mine));
       h += '<div style="margin:10px 0"><button type="button" class="plbtn" data-g="' + i + '" style="background:' + plcol(i, n) + '"' + (off ? " disabled" : "") + '>' +
         esc(g) + ' · ' + (i === x.g ? "(ඔබේ කණ්ඩායම)" : L.length ? "ක්‍රියාකාරකම් " + L.length : "තවම උඩුගත කර නැත") + '</button>';
       if (L.length && i !== x.g) {
