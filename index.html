@@ -20,15 +20,18 @@
       if (!MEM) return;
       var btns = body.querySelectorAll("button[data-k]");
       if (!btns.length) return;
+      var shown = 0;
       [].forEach.call(btns, function(b) {
         var x = MEM[b.dataset.k];
-        if (x && x.g !== GRP) b.style.display = "none";
+        if (x && +x.g !== GRP) b.style.display = "none"; else shown++;
       });
       if (!$("gqnote")) {
         var p = document.createElement("p");
         p.id = "gqnote";
         p.style.cssText = "font-weight:800;font-size:1.1rem;margin:4px 0";
-        p.textContent = "🏷️ " + gname(GRP) + " කණ්ඩායම — ඔබේ නම තෝරන්න";
+        p.textContent = shown
+          ? "🏷️ " + gname(GRP) + " කණ්ඩායම — ඔබේ නම තෝරන්න"
+          : "⚠️ " + gname(GRP) + " කණ්ඩායමේ සිසුන් තවම ලියාපදිංචි වී නැත. ගුරුතුමාට කියන්න: 'කණ්ඩායම් QR' tab එක නැවත විවෘත කරන්න.";
         body.insertBefore(p, btns[0]);
       }
     }
@@ -60,7 +63,7 @@
       '<button type="button" id="gqnext">ඊළඟ ➡️</button>' +
       '<button type="button" id="gqcp">📋 සබැඳිය පිටපත් කරන්න</button>' +
     '</div>' +
-    '<div id="gqmsg" style="margin-top:8px;font-weight:700;color:#e03131"></div>';
+    '<div id="gqmsg" style="margin-top:8px;font-weight:700"></div>';
   box.appendChild(pan);
 
   var saved = { s: "", l: "none" };
@@ -90,7 +93,10 @@
       sel.innerHTML = ""; $("gqqr").innerHTML = ""; $("gqlk").textContent = ""; $("gqnm").textContent = "";
       return;
     }
-    m.textContent = "";
+    m.textContent = "⏳ සිසුන් යාවත්කාලීන කරමින්...";
+    plApi(PL.db, "/polls/" + PL.id + "/members", "PUT", plMembers())
+      .then(function() { m.textContent = "✔ සිසුන් " + Object.keys(plMembers()).length + " දෙනෙක් යාවත්කාලීන විය."; })
+      .catch(function(e) { m.textContent = "⚠ Firebase සම්බන්ධ විය නොහැක (" + e.message + ")"; });
     var prev = sel.value, gs = (PL.meta && PL.meta.groups) || [], h = "";
     gs.forEach(function(g, i) { h += '<option value="' + i + '">' + esc(g) + '</option>'; });
     sel.innerHTML = h;
