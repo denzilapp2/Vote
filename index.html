@@ -360,7 +360,7 @@ button.chip-btn { padding: 8px 12px; font-size: 0.88rem; border-radius: 999px; }
       <option value="0">🚫 තමන්ගේ කණ්ඩායමට ඡන්දය දිය නොහැක</option>
       <option value="1">✅ තමන්ගේ කණ්ඩායමටත් ඡන්දය දිය හැක</option>
     </select>
-    <p class="plmu">කාඩ්පත් ඇදපු සිසුන් ඡන්දදායකයන් ලෙස යවයි. එක් සිසුවෙකුට එක් ඡන්දයක් පමණයි. ඡන්දය දීමට පෙර සිසුවාගේ කණ්ඩායම ක්‍රියාකාරකමක් උඩුගත කර තිබිය යුතු අතර, ඡන්දය දිය හැක්කේ ක්‍රියාකාරකම් උඩුගත කළ කණ්ඩායම් වලට පමණි.</p>
+    <p class="plmu">සියලුම සිසුන් ඡන්දදායකයන් ලෙස යවයි. කාඩ්පත් අදින්නේ නැතත් ආරම්භ කළ හැක — එවිට සිසුවා ඔහුගේ නම තෝරා පසුව තමන්ගේ කණ්ඩායම තෝරයි (කණ්ඩායම් QR භාවිතා කළොත් කණ්ඩායම ස්වයංක්‍රීයයි). එක් සිසුවෙකුට එක් ඡන්දයක් පමණයි. ඡන්දය දීමට පෙර සිසුවාගේ කණ්ඩායම ක්‍රියාකාරකමක් උඩුගත කර තිබිය යුතු අතර, ඡන්දය දිය හැක්කේ ක්‍රියාකාරකම් උඩුගත කළ කණ්ඩායම් වලට පමණි.</p>
     <button class="p" id="plstart" type="button">🚀 ඡන්ද විමසුම ආරම්භ කරන්න</button>
     <div id="plerr" style="color:#e03131;font-weight:700;margin-top:8px"></div>
   </div>
@@ -1023,10 +1023,19 @@ function plApi(db, p, m, b) {
 function plv(v, i) { return v ? (v[i] || 0) : 0; }
 function plcol(i, n) { return "hsl(" + Math.round(i * 360 / n) + ",62%,40%)"; }
 function plFail(e) { $("plerr").textContent = $("plmsg").textContent = "⚠ Firebase වෙත සම්බන්ධ විය නොහැක. URL සහ Rules පරීක්ෂා කරන්න (" + e.message + ")"; }
-function plMembers() {
+function plMembers(old) {
   var o = {};
-  res.forEach(function(g, i) { if (g >= 0) o["c" + i] = { n: NM[i] || ("කාඩ් " + (i + 1)), p: PN[i] || "", g: g }; });
+  for (var i = 0; i < N; i++) {
+    var k = "c" + i, g = res[i];
+    /* කාඩ් අදින්නේ නැති සිසුන්: g = -1 (සිසුවා ම කණ්ඩායම තෝරයි) */
+    if (g < 0) g = (old && old[k] && old[k].g >= 0) ? old[k].g : -1;
+    o[k] = { n: NM[i] || ("කාඩ් " + (i + 1)), p: PN[i] || "", g: g };
+  }
   return o;
+}
+function plSync() {
+  var u = "/polls/" + PL.id + "/members";
+  return plApi(PL.db, u).then(function(old) { return plApi(PL.db, u, "PUT", plMembers(old || {})); });
 }
 
 $("pollBtn").onclick = function() {
@@ -1049,7 +1058,7 @@ $("plstart").onclick = function() {
   if (!/^https:\/\//.test(db)) { $("pldbw").style.display = ""; er.textContent = "Firebase Database URL එක https:// සහිතව ඇතුළත් කරන්න"; return; }
   if (!/^https?:\/\//.test(pu)) { $("plpuw").style.display = ""; er.textContent = "GitHub Pages ලිපිනය ඇතුළත් කරන්න (QR එක වැඩ කිරීමට)"; return; }
   var mem = plMembers();
-  if (Object.keys(mem).length < 2) { er.textContent = "මුලින්ම සිසුන් කාඩ්පත් අදින්න (අවම වශයෙන් 2 දෙනෙක්)."; return; }
+  if (N < 2) { er.textContent = "සිසුන් ගණන අවම වශයෙන් 2ක් විය යුතුයි."; return; }
   lsg("pl_db", db); lsg("pl_pu", pu);
   var groups = [];
   for (var g = 0; g < K; g++) groups.push(gname(g));
@@ -1093,7 +1102,7 @@ function plPoll() {
 $("plfree").onchange = function() { plApi(PL.db, "/polls/" + PL.id + "/meta", "PATCH", { free: $("plfree").checked }).then(plPoll).catch(plFail); };
 $("plselfchk").onchange = function() { plApi(PL.db, "/polls/" + PL.id + "/meta", "PATCH", { self: $("plselfchk").checked }).then(plPoll).catch(plFail); };
 $("pltg").onclick = function() { plApi(PL.db, "/polls/" + PL.id + "/meta", "PATCH", { open: !PL.meta.open }).then(plPoll).catch(plFail); };
-$("plup").onclick = function() { plApi(PL.db, "/polls/" + PL.id + "/members", "PUT", plMembers()).then(function() { showToast("👥 සිසුන් යාවත්කාලීන කළා ✔"); plPoll(); }).catch(plFail); };
+$("plup").onclick = function() { plSync().then(function() { showToast("👥 සිසුන් යාවත්කාලීන කළා ✔"); plPoll(); }).catch(plFail); };
 $("plrs").onclick = function() {
   if (!confirm("සියලුම ඡන්ද මකන්නද?")) return;
   Promise.all([plApi(PL.db, "/polls/" + PL.id + "/votes", "DELETE"), plApi(PL.db, "/polls/" + PL.id + "/voters", "DELETE")]).then(plPoll).catch(plFail);
@@ -1154,7 +1163,26 @@ function plVoter() {
     h += '<button type="button" data-back="1" style="margin-top:6px">← ආපසු</button>';
     B.innerHTML = h;
   }
-  document.addEventListener("acts-changed", function() { if (me && M) step2(); });
+  var QG = new URLSearchParams(location.search).get("grp");
+  function pickGroup() {
+    var h = '<h2 style="margin:0 0 6px">👋 ' + esc(mem[me].n) + '</h2><p class="plmu">ඔබේ කණ්ඩායම තෝරන්න 👇</p>';
+    M.groups.forEach(function(g, i) {
+      h += '<button type="button" class="plbtn" data-setg="' + i + '" style="background:' + plcol(i, M.groups.length) + '">' + esc(g) + '</button>';
+    });
+    B.innerHTML = h + '<button type="button" data-home="1" style="margin-top:6px">← ආපසු</button>';
+  }
+  function setGroup(g) {
+    big("⏳");
+    plApi(db, "/polls/" + id + "/members/" + me + "/g", "PUT", g)
+      .then(function() { mem[me].g = g; step2(); })
+      .catch(function() { big("⚠ දෝෂයකි. නැවත උත්සාහ කරන්න."); });
+  }
+  function enter() {
+    if (+mem[me].g >= 0) step2();
+    else if (QG !== null && !isNaN(+QG) && +QG < M.groups.length) setGroup(+QG);
+    else pickGroup();
+  }
+  document.addEventListener("acts-changed", function() { if (me && M && +mem[me].g >= 0) step2(); });
   function vote(g) {
     big("⏳");
     plApi(db, "/polls/" + id + "/voters/" + me).then(function(x) {
@@ -1175,8 +1203,12 @@ function plVoter() {
     }
     var b = e.target.closest("button");
     if (!b || b.disabled) return;
-    if (b.dataset.k) { me = b.dataset.k; step2(); }
-    else if (b.dataset.back) { me = null; step1(); }
+    if (b.dataset.k) { me = b.dataset.k; enter(); }
+    else if (b.dataset.back || b.dataset.home) { me = null; step1(); }
+    else if (b.dataset.setg !== undefined) {
+      var sg = +b.dataset.setg;
+      if (confirm("ඔබේ කණ්ඩායම “" + M.groups[sg] + "” ද?")) setGroup(sg);
+    }
     else if (b.dataset.g !== undefined) {
       var g = +b.dataset.g;
       if (g === mem[me].g && !M.self) return;
@@ -1186,7 +1218,7 @@ function plVoter() {
   plApi(db, "/polls/" + id).then(function(d) {
     if (!d || !d.meta) { big("විමසුම හමු නොවීය 😕"); return; }
     M = d.meta; mem = d.members || {}; vd = d.voters || {};
-    keys = Object.keys(mem).sort(function(a, b) { return String(mem[a].n).localeCompare(String(mem[b].n), "si"); });
+    keys = Object.keys(mem).sort(function(a, b) { return String(mem[a].n).localeCompare(String(mem[b].n), "si", { numeric: true }); });
     if (!M.open) { big("🔒 ඡන්දය වසා ඇත"); return; }
     if (!keys.length) { big("තවම සිසුන් නැත"); return; }
     step1();
@@ -1442,7 +1474,7 @@ if (!PLV) start(false);
       var shown = 0;
       [].forEach.call(btns, function(b) {
         var x = MEM[b.dataset.k];
-        if (x && +x.g !== GRP) b.style.display = "none"; else shown++;
+        if (x && +x.g >= 0 && +x.g !== GRP) b.style.display = "none"; else shown++;
       });
       if (!$("gqnote")) {
         var p = document.createElement("p");
@@ -1516,8 +1548,8 @@ if (!PLV) start(false);
       return;
     }
     m.textContent = "⏳ සිසුන් යාවත්කාලීන කරමින්...";
-    plApi(PL.db, "/polls/" + PL.id + "/members", "PUT", plMembers())
-      .then(function() { m.textContent = "✔ සිසුන් " + Object.keys(plMembers()).length + " දෙනෙක් යාවත්කාලීන විය."; })
+    plSync()
+      .then(function() { m.textContent = "✔ සිසුන් " + N + " දෙනෙක් යාවත්කාලීන විය."; })
       .catch(function(e) { m.textContent = "⚠ Firebase සම්බන්ධ විය නොහැක (" + e.message + ")"; });
     var prev = sel.value, gs = (PL.meta && PL.meta.groups) || [], h = "";
     gs.forEach(function(g, i) { h += '<option value="' + i + '">' + esc(g) + '</option>'; });
