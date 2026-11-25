@@ -360,7 +360,7 @@ button.chip-btn { padding: 8px 12px; font-size: 0.88rem; border-radius: 999px; }
       <option value="0">🚫 තමන්ගේ කණ්ඩායමට ඡන්දය දිය නොහැක</option>
       <option value="1">✅ තමන්ගේ කණ්ඩායමටත් ඡන්දය දිය හැක</option>
     </select>
-    <p class="plmu">සියලුම සිසුන් ඡන්දදායකයන් ලෙස යවයි. කාඩ්පත් අදින්නේ නැතත් ආරම්භ කළ හැක — එවිට සිසුවා ඔහුගේ නම තෝරා පසුව තමන්ගේ කණ්ඩායම තෝරයි (කණ්ඩායම් QR භාවිතා කළොත් කණ්ඩායම ස්වයංක්‍රීයයි). එක් සිසුවෙකුට එක් ඡන්දයක් පමණයි. ඡන්දය දීමට පෙර සිසුවාගේ කණ්ඩායම ක්‍රියාකාරකමක් උඩුගත කර තිබිය යුතු අතර, ඡන්දය දිය හැක්කේ ක්‍රියාකාරකම් උඩුගත කළ කණ්ඩායම් වලට පමණි.</p>
+    <p class="plmu">QR ස්කෑන් කරන සිසුවාට කාඩ්පතක් තෝරන්න අවශ්‍ය නැත — නම (විකල්ප) ටයිප් කර, කණ්ඩායම තෝරයි (කණ්ඩායම් QR භාවිතා කළොත් කණ්ඩායම ස්වයංක්‍රීයයි). එක් උපාංගයකට (ෆෝන් එකකට) එක් ඡන්දයක් පමණයි. එක් සිසුවෙකුට එක් ඡන්දයක් පමණයි. ඡන්දය දීමට පෙර සිසුවාගේ කණ්ඩායම ක්‍රියාකාරකමක් උඩුගත කර තිබිය යුතු අතර, ඡන්දය දිය හැක්කේ ක්‍රියාකාරකම් උඩුගත කළ කණ්ඩායම් වලට පමණි.</p>
     <button class="p" id="plstart" type="button">🚀 ඡන්ද විමසුම ආරම්භ කරන්න</button>
     <div id="plerr" style="color:#e03131;font-weight:700;margin-top:8px"></div>
   </div>
@@ -1031,6 +1031,7 @@ function plMembers(old) {
     if (g < 0) g = (old && old[k] && old[k].g >= 0) ? old[k].g : -1;
     o[k] = { n: NM[i] || ("කාඩ් " + (i + 1)), p: PN[i] || "", g: g };
   }
+  if (old) Object.keys(old).forEach(function(k) { if (k.charAt(0) !== "c") o[k] = old[k]; });
   return o;
 }
 function plSync() {
@@ -1088,7 +1089,7 @@ function plPoll() {
     for (var i = 0; i < n; i++) { var c = plv(d.votes, i); vs.push(c); t += c; if (c > mxv) mxv = c; }
     var mem = d.members ? Object.keys(d.members).length : 0, vd = d.voters ? Object.keys(d.voters).length : 0;
     $("pllt").textContent = d.meta.title;
-    $("pltot").textContent = "ඡන්ද: " + t + " • ඡන්ද දුන් සිසුන්: " + vd + " / " + mem;
+    $("pltot").textContent = "ඡන්ද: " + t + " • ඡන්ද දුන් සිසුන්: " + vd;
     $("plres").innerHTML = g.map(function(nm, i) {
       var w = t ? Math.round(vs[i] * 100 / t) : 0, top = mxv > 0 && vs[i] === mxv;
       return '<div class="plr' + (top ? " pltop" : "") + '"><div class="plrt"><span>' + (top ? "🏆 " : "") + esc(nm) + '</span><span>' + vs[i] + " (" + w + '%)</span></div><div class="plrb"><i style="width:' + w + "%;background:" + plcol(i, n) + '"></i></div></div>';
@@ -1122,13 +1123,31 @@ function plVoter() {
   var B = $("plvbody"), db = PLV.db, id = PLV.id, me = null, M = null, mem = {}, vd = {}, keys = [], acts = {};
   function big(t) { B.innerHTML = '<div class="plbig">' + t + '</div>'; }
   big("⏳");
+  function setMe(k) { me = k; window.PVME = k; }
   function step1() {
-    var h = '<h2 style="margin:0 0 6px">' + esc(M.title) + '</h2><p class="plmu">ඔබේ නම තෝරන්න 👇</p>';
-    keys.forEach(function(k) {
-      var x = mem[k], v = vd[k] !== undefined && vd[k] !== null;
-      h += '<button type="button" class="plbtn" data-k="' + k + '" style="background:var(--pr)">' + (v ? "✅ " : "") + esc(x.n) + '</button>';
-    });
+    var sv = null;
+    try { sv = JSON.parse(lsg("pv_" + id) || "null"); } catch (e) {}
+    if (sv && sv.k && mem[sv.k]) { setMe(sv.k); return step2(); }
+    var qg = new URLSearchParams(location.search).get("grp"), gok = false; /* QR වල grp තිබුණත් සිසුවා ම කණ්ඩායම තෝරයි */
+    var h = '<h2 style="margin:0 0 6px">' + esc(M.title) + '</h2>' +
+      '<label for="pvn">ඔබේ නම (විකල්පයි)</label><input id="pvn" maxlength="40" placeholder="උදා: කසුන්">';
+    if (gok) {
+      h += '<p style="font-weight:800;font-size:1.15rem;margin:12px 0">🏷️ ' + esc(M.groups[+qg]) + '</p>' +
+        '<button type="button" class="plbtn" data-go="' + (+qg) + '" style="background:var(--pr);text-align:center">ඉදිරියට ➡️</button>';
+    } else {
+      h += '<p class="plmu">ඔබේ කණ්ඩායම තෝරන්න 👇</p>';
+      M.groups.forEach(function(g, i) {
+        h += '<button type="button" class="plbtn" data-go="' + i + '" style="background:' + plcol(i, M.groups.length) + '">' + esc(g) + '</button>';
+      });
+    }
     B.innerHTML = h;
+  }
+  function guestGo(g) {
+    var nm = ($("pvn") && $("pvn").value.trim()) || "සිසුවා", k = "d" + Math.random().toString(36).slice(2, 8), o = { n: nm, p: "", g: g };
+    big("⏳");
+    plApi(db, "/polls/" + id + "/members/" + k, "PUT", o).then(function() {
+      mem[k] = o; setMe(k); lsg("pv_" + id, JSON.stringify({ k: k, g: g })); step2();
+    }).catch(function() { big("⚠ දෝෂයකි. නැවත උත්සාහ කරන්න."); });
   }
   function step2() {
     plApi(db, "/polls/" + id + "/meta").then(function(m) { if (m) { M.free = !!m.free; M.self = !!m.self; M.open = m.open; } }).catch(function() {})
@@ -1203,8 +1222,9 @@ function plVoter() {
     }
     var b = e.target.closest("button");
     if (!b || b.disabled) return;
-    if (b.dataset.k) { me = b.dataset.k; enter(); }
-    else if (b.dataset.back || b.dataset.home) { me = null; step1(); }
+    if (b.dataset.go !== undefined) { guestGo(+b.dataset.go); }
+    else if (b.dataset.k) { setMe(b.dataset.k); enter(); }
+    else if (b.dataset.back || b.dataset.home) { me = null; window.PVME = null; step1(); }
     else if (b.dataset.setg !== undefined) {
       var sg = +b.dataset.setg;
       if (confirm("ඔබේ කණ්ඩායම “" + M.groups[sg] + "” ද?")) setGroup(sg);
@@ -1220,7 +1240,6 @@ function plVoter() {
     M = d.meta; mem = d.members || {}; vd = d.voters || {};
     keys = Object.keys(mem).sort(function(a, b) { return String(mem[a].n).localeCompare(String(mem[b].n), "si", { numeric: true }); });
     if (!M.open) { big("🔒 ඡන්දය වසා ඇත"); return; }
-    if (!keys.length) { big("තවම සිසුන් නැත"); return; }
     step1();
   }).catch(function() { big("⚠ සම්බන්ධ විය නොහැක"); });
 }
@@ -1345,6 +1364,7 @@ if (!PLV) start(false);
       b.textContent = "📂 අපේ කණ්ඩායමේ ක්‍රියාකාරකම් / ගොනු උඩුගත කරන්න";
       b.onclick = function(ev) {
         ev.stopPropagation();
+        U.k = window.PVME || U.k;
         if (!U.k) return;
         MS.textContent = "⏳"; $("acu").classList.add("on");
         Promise.all([
