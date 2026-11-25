@@ -179,7 +179,7 @@ button.chip-btn { padding: 8px 12px; font-size: 0.88rem; border-radius: 999px; }
 .plmu{color:var(--mu);font-size:.85rem;margin:8px 0}
 #plv{position:fixed;inset:0;z-index:80;display:none;overflow:auto;padding:16px;padding-top:calc(16px + env(safe-area-inset-top,0px));background:linear-gradient(135deg,var(--b1),var(--b3))}
 #plv.on{display:block}
-.plvv{max-width:560px;margin:0 auto;background:var(--card);color:var(--tx);border-radius:20px;padding:16px}
+.plvv{max-width:620px;margin:0 auto;background:var(--card);color:var(--tx);border-radius:20px;padding:16px}
 .plvv h2{font-family:var(--fd);font-size:1.5rem}
 .plbtn{display:block;width:100%;margin:8px 0;padding:14px;font-size:1.05rem;font-weight:700;color:#fff;border:0;border-radius:14px;text-align:left}
 .plbtn:disabled{opacity:.35}
@@ -216,6 +216,12 @@ button.chip-btn { padding: 8px 12px; font-size: 0.88rem; border-radius: 999px; }
 .gqc{background:var(--bg);border:2px solid var(--bd);border-radius:14px;padding:10px;text-align:center}
 .gqct{font-family:var(--fo);font-weight:800;font-size:.9rem;margin-bottom:6px}
 .gqcq{background:#fff;padding:8px;border-radius:10px;display:inline-block;line-height:0}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.gal .it{font-size:.75rem;cursor:pointer}
+.gal .it img,.gal .it .ph{width:100%;height:100px;object-fit:cover;border-radius:8px;display:block}
+.gal .it .ph{background:rgba(128,128,128,.2);display:flex;align-items:center;justify-content:center;font-size:2rem}
+.gal .it .fn{word-break:break-word}
+.gal .it .by{color:var(--mu);margin:0}
 @media print{
  body.gqprint .wrap{display:none!important}
  body.gqprint #plm.noprint{display:block!important;position:static;background:none;padding:0}
@@ -335,13 +341,26 @@ button.chip-btn { padding: 8px 12px; font-size: 0.88rem; border-radius: 999px; }
     <button type="button" id="plx">✖ වසන්න</button>
   </div>
   <div id="plset">
-    <label for="pldb">Firebase Realtime Database URL (එක් වරක් පමණි)</label>
-    <input id="pldb" placeholder="https://your-project-default-rtdb.firebaseio.com">
-    <label for="plpu">මෙම පිටුවේ GitHub Pages ලිපිනය (QR එකට)</label>
-    <input id="plpu">
+    <div id="pldbw">
+      <label for="pldb">Firebase Realtime Database URL (එක් වරක් පමණි)</label>
+      <input id="pldb" placeholder="https://your-project-default-rtdb.firebaseio.com">
+    </div>
+    <div id="pldbs" style="display:none;margin:8px 0">
+      <span class="plmu">✅ Firebase සම්බන්ධතාවය සුරැකී ඇත.</span>
+      <button type="button" class="chip-btn" id="pldbe">✏️ වෙනස් කරන්න</button>
+    </div>
+    <div id="plpuw">
+      <label for="plpu">මෙම පිටුවේ GitHub Pages ලිපිනය (QR එකට)</label>
+      <input id="plpu">
+    </div>
     <label for="plti">මාතෘකාව</label>
     <input id="plti" value="හොඳම කණ්ඩායම කුමක්ද?">
-    <p class="plmu">කාඩ්පත් ඇදපු සිසුන් ඡන්දදායකයන් ලෙස යවයි. සිසුවා තමන්ගේ නම තෝරන විට ඔහුගේ කණ්ඩායමට ඡන්දය දීම අවහිර වේ. එක් සිසුවෙකුට එක් ඡන්දයක් පමණයි. ඡන්දය දීමට පෙර සිසුවාගේ කණ්ඩායම ක්‍රියාකාරකමක් උඩුගත කර තිබිය යුතු අතර, ඡන්දය දිය හැක්කේ ක්‍රියාකාරකම් උඩුගත කළ කණ්ඩායම් වලට පමණි.</p>
+    <label for="plself">ඡන්ද ක්‍රමය</label>
+    <select id="plself">
+      <option value="0">🚫 තමන්ගේ කණ්ඩායමට ඡන්දය දිය නොහැක</option>
+      <option value="1">✅ තමන්ගේ කණ්ඩායමටත් ඡන්දය දිය හැක</option>
+    </select>
+    <p class="plmu">කාඩ්පත් ඇදපු සිසුන් ඡන්දදායකයන් ලෙස යවයි. එක් සිසුවෙකුට එක් ඡන්දයක් පමණයි. ඡන්දය දීමට පෙර සිසුවාගේ කණ්ඩායම ක්‍රියාකාරකමක් උඩුගත කර තිබිය යුතු අතර, ඡන්දය දිය හැක්කේ ක්‍රියාකාරකම් උඩුගත කළ කණ්ඩායම් වලට පමණි.</p>
     <button class="p" id="plstart" type="button">🚀 ඡන්ද විමසුම ආරම්භ කරන්න</button>
     <div id="plerr" style="color:#e03131;font-weight:700;margin-top:8px"></div>
   </div>
@@ -363,6 +382,7 @@ button.chip-btn { padding: 8px 12px; font-size: 0.88rem; border-radius: 999px; }
           <button type="button" id="plnw">✨ නව විමසුමක්</button>
         </div>
         <label style="display:flex;align-items:center;gap:8px;margin-top:10px;cursor:pointer;color:var(--tx)"><input type="checkbox" id="plfree" style="width:auto"> ක්‍රියාකාරකම් උඩුගත කර නැතත් සියලුම කණ්ඩායම් වලට ඡන්දය දීමට ඉඩ දෙන්න</label>
+        <label style="display:flex;align-items:center;gap:8px;margin-top:8px;cursor:pointer;color:var(--tx)"><input type="checkbox" id="plselfchk" style="width:auto"> තමන්ගේ කණ්ඩායමටත් ඡන්දය දීමට ඉඩ දෙන්න</label>
         <div id="plmsg" style="margin-top:8px;font-weight:700;color:#e03131"></div>
       </div>
     </div>
@@ -404,6 +424,10 @@ button.chip-btn { padding: 8px 12px; font-size: 0.88rem; border-radius: 999px; }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 var $ = function(i) { return document.getElementById(i); };
+
+/* ★★★ මෙතන ඔබේ Firebase URL එක එක් වරක් දමන්න. එවිට ඉල්ලීම නැවත නොපෙනේ. ★★★
+   උදා: "https://your-project-default-rtdb.firebaseio.com" */
+var DEFAULT_DB = "https://vote-f7dac-default-rtdb.asia-southeast1.firebasedatabase.app";
 
 var N = 0, K = 0, deck = [], res = [], cap = [], NM = [], cur = -1, rec = null, PN = [], petPool = [];
 var soundOn = true;
@@ -1006,16 +1030,24 @@ function plMembers() {
 }
 
 $("pollBtn").onclick = function() {
-  $("pldb").value = lsg("pl_db") || "";
-  $("plpu").value = lsg("pl_pu") || (location.protocol === "file:" ? "" : location.origin + location.pathname);
+  var dbv = DEFAULT_DB || lsg("pl_db") || "";
+  $("pldb").value = dbv;
+  /* Firebase URL එක දැනටමත් ඇත්නම් ඉල්ලීම සඟවයි */
+  $("pldbw").style.display = dbv ? "none" : "";
+  $("pldbs").style.display = dbv ? "" : "none";
+  var puv = lsg("pl_pu") || (location.protocol === "file:" ? "" : location.origin + location.pathname);
+  $("plpu").value = puv;
+  /* GitHub Pages ලිපිනය ස්වයංක්‍රීයව හඳුනාගත හැකි නම් සඟවයි */
+  $("plpuw").style.display = (puv && location.protocol !== "file:") ? "none" : "";
   $("plm").classList.add("on");
 };
+$("pldbe").onclick = function() { $("pldbw").style.display = ""; $("pldbs").style.display = "none"; };
 $("plx").onclick = function() { $("plm").classList.remove("on"); };
 
 $("plstart").onclick = function() {
   var db = $("pldb").value.trim().replace(/\/+$/, ""), pu = $("plpu").value.trim(), er = $("plerr");
-  if (!/^https:\/\//.test(db)) { er.textContent = "Firebase Database URL එක https:// සහිතව ඇතුළත් කරන්න"; return; }
-  if (!/^https?:\/\//.test(pu)) { er.textContent = "GitHub Pages ලිපිනය ඇතුළත් කරන්න (QR එක වැඩ කිරීමට)"; return; }
+  if (!/^https:\/\//.test(db)) { $("pldbw").style.display = ""; er.textContent = "Firebase Database URL එක https:// සහිතව ඇතුළත් කරන්න"; return; }
+  if (!/^https?:\/\//.test(pu)) { $("plpuw").style.display = ""; er.textContent = "GitHub Pages ලිපිනය ඇතුළත් කරන්න (QR එක වැඩ කිරීමට)"; return; }
   var mem = plMembers();
   if (Object.keys(mem).length < 2) { er.textContent = "මුලින්ම සිසුන් කාඩ්පත් අදින්න (අවම වශයෙන් 2 දෙනෙක්)."; return; }
   lsg("pl_db", db); lsg("pl_pu", pu);
@@ -1023,7 +1055,7 @@ $("plstart").onclick = function() {
   for (var g = 0; g < K; g++) groups.push(gname(g));
   PL.db = db;
   PL.id = Math.random().toString(36).slice(2, 8);
-  PL.meta = { title: $("plti").value.trim() || "හොඳම කණ්ඩායම කුමක්ද?", groups: groups, open: true };
+  PL.meta = { title: $("plti").value.trim() || "හොඳම කණ්ඩායම කුමක්ද?", groups: groups, open: true, self: $("plself").value === "1" };
   plApi(db, "/polls/" + PL.id, "PUT", { meta: PL.meta, members: mem }).then(function() {
     var link = pu.split("?")[0] + "?v=" + PL.id + "&db=" + encodeURIComponent(db);
     $("pllk").textContent = link;
@@ -1053,11 +1085,13 @@ function plPoll() {
       return '<div class="plr' + (top ? " pltop" : "") + '"><div class="plrt"><span>' + (top ? "🏆 " : "") + esc(nm) + '</span><span>' + vs[i] + " (" + w + '%)</span></div><div class="plrb"><i style="width:' + w + "%;background:" + plcol(i, n) + '"></i></div></div>';
     }).join("");
     $("plfree").checked = !!d.meta.free;
+    $("plselfchk").checked = !!d.meta.self;
     $("pltg").textContent = d.meta.open ? "🔒 ඡන්දය වසන්න" : "🔓 ඡන්දය විවෘත කරන්න";
     $("plmsg").textContent = d.meta.open ? "" : "🔒 ඡන්දය දැන් වසා ඇත";
   }).catch(plFail);
 }
 $("plfree").onchange = function() { plApi(PL.db, "/polls/" + PL.id + "/meta", "PATCH", { free: $("plfree").checked }).then(plPoll).catch(plFail); };
+$("plselfchk").onchange = function() { plApi(PL.db, "/polls/" + PL.id + "/meta", "PATCH", { self: $("plselfchk").checked }).then(plPoll).catch(plFail); };
 $("pltg").onclick = function() { plApi(PL.db, "/polls/" + PL.id + "/meta", "PATCH", { open: !PL.meta.open }).then(plPoll).catch(plFail); };
 $("plup").onclick = function() { plApi(PL.db, "/polls/" + PL.id + "/members", "PUT", plMembers()).then(function() { showToast("👥 සිසුන් යාවත්කාලීන කළා ✔"); plPoll(); }).catch(plFail); };
 $("plrs").onclick = function() {
@@ -1088,34 +1122,34 @@ function plVoter() {
     B.innerHTML = h;
   }
   function step2() {
-    plApi(db, "/polls/" + id + "/meta/free").then(function(f) { M.free = !!f; }).catch(function() {})
+    plApi(db, "/polls/" + id + "/meta").then(function(m) { if (m) { M.free = !!m.free; M.self = !!m.self; M.open = m.open; } }).catch(function() {})
       .then(function() { return plApi(db, "/polls/" + id + "/acts"); })
       .then(function(a) { acts = a || {}; draw2(); })
       .catch(function() { draw2(); });
   }
+  function thumb(a) {
+    return '<div class="it" data-act="' + a._k + '">' +
+      (a.th ? '<img src="' + a.th + '" alt="">' : '<div class="ph">' + (a.fn ? "📎" : "💬") + '</div>') +
+      '<div class="fn">' + esc(String(a.fn || a.t || "").slice(0, 40)) + '</div>' +
+      '<div class="by">👤 ' + esc(a.n || "") + '</div></div>';
+  }
   function draw2() {
     var x = mem[me], n = M.groups.length, by = {}, voted = vd[me] !== undefined && vd[me] !== null;
-    Object.keys(acts).forEach(function(k) { var a = acts[k]; (by[a.g] = by[a.g] || []).push(a); });
+    Object.keys(acts).forEach(function(k) { var a = acts[k]; a._k = k; (by[a.g] = by[a.g] || []).push(a); });
     var mine = (by[x.g] || []).length > 0;
     var h = '<h2 style="margin:0 0 4px">👋 ' + esc(x.n) + '</h2>' +
       (x.p ? '<p style="margin:0 0 4px;font-weight:700">ඔබේ පෙට් නම: ' + esc(x.p) + '</p>' : '') +
       '<p style="margin:0 0 6px;font-weight:700">ඔබේ කණ්ඩායම: ' + esc(M.groups[x.g]) + '</p>' +
-      '<p class="plmu">' + (M.free ? "✅ ඕනෑම අනෙක් කණ්ඩායමකට ඡන්දය දිය හැක." : mine ? "✅ ඔබේ කණ්ඩායම ක්‍රියාකාරකමක් උඩුගත කර ඇත." : "⚠️ මුලින් ඔබේ කණ්ඩායමේ ක්‍රියාකාරකමක් උඩුගත කරන්න. ඉන්පසු ඡන්දය දිය හැක.") + '</p>' +
-      '<h3 class="plvt" style="margin:14px 0 4px">🗳️ ඡන්දය දෙන්න</h3>' +
-      '<p class="plmu">' + (voted ? "✅ ඔබ දැනටමත් ඡන්දය දී ඇත." : "ක්‍රියාකාරකම් උඩුගත කළ අනෙක් කණ්ඩායම් වලට පමණක් ඡන්දය දිය හැක.") + '</p>';
+      '<p class="plmu">' + (M.free ? "✅ ක්‍රියාකාරකම් උඩුගත නොකළත් ඡන්දය දිය හැක." : mine ? "✅ ඔබේ කණ්ඩායම ක්‍රියාකාරකමක් උඩුගත කර ඇත." : "⚠️ මුලින් ඔබේ කණ්ඩායමේ ක්‍රියාකාරකමක් උඩුගත කරන්න. ඉන්පසු ඡන්දය දිය හැක.") + '</p>' +
+      '<h3 class="plvt" style="margin:14px 0 4px">🖼️ ගැලරිය • 🗳️ හොඳම එකට ඡන්දය දෙන්න</h3>' +
+      '<p class="plmu">' + (voted ? "✅ ඔබ දැනටමත් ඡන්දය දී ඇත." : M.self ? "ℹ️ ඔබේ කණ්ඩායමටත් ඡන්දය දිය හැක." : "🚫 ඔබේ කණ්ඩායමට ඡන්දය දිය නොහැක.") + '</p>';
     M.groups.forEach(function(g, i) {
-      var L = by[i] || [], off = i === x.g || voted || (!M.free && (!L.length || !mine));
-      h += '<div style="margin:10px 0"><button type="button" class="plbtn" data-g="' + i + '" style="background:' + plcol(i, n) + '"' + (off ? " disabled" : "") + '>' +
-        esc(g) + ' · ' + (i === x.g ? "(ඔබේ කණ්ඩායම)" : L.length ? "ක්‍රියාකාරකම් " + L.length : "තවම උඩුගත කර නැත") + '</button>';
-      if (L.length && i !== x.g) {
-        h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">' + L.slice(0, 6).map(function(a) {
-          return '<div style="width:92px;font-size:.7rem">' + (a.th
-            ? '<img src="' + a.th + '" alt="" style="width:92px;height:70px;object-fit:cover;border-radius:8px;display:block">'
-            : '<div style="width:92px;height:70px;border-radius:8px;background:rgba(128,128,128,.2);display:flex;align-items:center;justify-content:center;font-size:1.6rem">' + (a.fn ? "📎" : "💬") + '</div>') +
-            '<div style="word-break:break-word">' + esc(String(a.fn || a.t || "").slice(0, 40)) + '</div></div>';
-        }).join("") + '</div>';
-      }
-      h += '</div>';
+      var L = by[i] || [], own = i === x.g;
+      var off = (own && !M.self) || voted || (!M.free && (!L.length || !mine));
+      h += '<div class="gqc" style="margin:12px 0;text-align:left;border-color:' + plcol(i, n) + '">' +
+        '<div class="gqct" style="color:' + plcol(i, n) + '">' + esc(g) + (own ? " (ඔබේ කණ්ඩායම)" : "") + ' · ක්‍රියාකාරකම් ' + L.length + '</div>' +
+        (L.length ? '<div class="gal">' + L.map(thumb).join("") + '</div>' : '<div class="plmu">තවම උඩුගත කර නැත.</div>') +
+        '<button type="button" class="plbtn" data-g="' + i + '" style="background:' + plcol(i, n) + ';margin-top:8px;text-align:center"' + (off ? " disabled" : "") + '>🏆 මේ කණ්ඩායමට ඡන්දය දෙන්න</button></div>';
     });
     h += '<button type="button" data-back="1" style="margin-top:6px">← ආපසු</button>';
     B.innerHTML = h;
@@ -1131,12 +1165,21 @@ function plVoter() {
     }).catch(function() { big("⚠ දෝෂයකි. නැවත උත්සාහ කරන්න."); });
   }
   B.onclick = function(e) {
+    var it = e.target.closest("[data-act]");
+    if (it) {
+      var a = acts[it.dataset.act];
+      if (!a) return;
+      if (a.u) window.open(a.u, "_blank");
+      else if (a.th && a.f) plApi(db, "/polls/" + id + "/files/" + a.f).then(function(r) { $("aclb").querySelector("img").src = r.d; $("aclb").classList.add("on"); });
+      return;
+    }
     var b = e.target.closest("button");
     if (!b || b.disabled) return;
     if (b.dataset.k) { me = b.dataset.k; step2(); }
     else if (b.dataset.back) { me = null; step1(); }
     else if (b.dataset.g !== undefined) {
       var g = +b.dataset.g;
+      if (g === mem[me].g && !M.self) return;
       if (confirm("“" + M.groups[g] + "” සඳහා ඡන්දය දෙන්නද?")) vote(g);
     }
   };
@@ -1204,7 +1247,8 @@ if (!PLV) start(false);
     return new Promise(function(res, rej) {
       var isImg = /^image\//.test(f.type) && !/svg|gif/.test(f.type);
       if (!isImg && f.size > maxB()) return rej(new Error(f.name + " : " + sz(maxB()) + " ට වඩා විශාලයි"));
-      var base = { g: U.m.g, n: U.m.n, k: U.k, t: t, fn: f.name, ty: f.type || "", sz: f.size, ts: Date.now() };
+      /* tn = කණ්ඩායමේ නම (උඩුගත කළ කණ්ඩායම හඳුනාගැනීමට) */
+      var base = { g: U.m.g, n: U.m.n, k: U.k, tn: gname(U.m.g), t: t, fn: f.name, ty: f.type || "", sz: f.size, ts: Date.now() };
       readURL(f, function(url) {
         function save(full, th) {
           var drv = false;
@@ -1216,7 +1260,7 @@ if (!PLV) start(false);
             }).then(res).catch(rej);
           }
           if (U.gs) {
-            var name = isImg && !/\.jpe?g$/i.test(f.name) ? f.name.replace(/\.[^.]+$/, "") + ".jpg" : f.name;
+            var name = gn(U.m.g) + " - " + U.m.n + " - " + (isImg && !/\.jpe?g$/i.test(f.name) ? f.name.replace(/\.[^.]+$/, "") + ".jpg" : f.name);
             fetch(U.gs, { method: "POST", body: JSON.stringify({
               name: name, type: isImg ? "image/jpeg" : f.type, data: full.split(",")[1],
               folder: gn(U.m.g)
@@ -1247,7 +1291,7 @@ if (!PLV) start(false);
     (function next() {
       if (i >= fs.length) {
         if (fs.length) return done();
-        return plApi(U.db, "/polls/" + U.id + "/acts", "POST", { g: U.m.g, n: U.m.n, k: U.k, t: t, ts: Date.now() }).then(done).catch(fail);
+        return plApi(U.db, "/polls/" + U.id + "/acts", "POST", { g: U.m.g, n: U.m.n, k: U.k, tn: gname(U.m.g), t: t, ts: Date.now() }).then(done).catch(fail);
       }
       MS.textContent = "⏳ උඩුගත වෙමින්... (" + (i + 1) + "/" + fs.length + ")";
       sendOne(fs[i], t).then(function() { i++; next(); }).catch(fail);
@@ -1306,7 +1350,7 @@ if (!PLV) start(false);
           return '<div class="acit">' +
             (a.th ? '<img class="acth" src="' + a.th + '" data-view="' + k + '" alt="">'
                   : '<div class="acic">' + (has ? icon(a.fn, a.ty) : "💬") + '</div>') +
-            '<div class="i"><b>' + esc(a.n || "") + '</b>' +
+            '<div class="i"><b>' + esc((a.tn ? a.tn + " · " : "") + (a.n || "")) + '</b>' +
             (a.fn ? '<br>' + esc(a.fn) + ' · ' + sz(a.sz || 0) : '') +
             (a.t ? '<br>' + esc(a.t) : '') + '</div>' +
             '<div class="r">' +
